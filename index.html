@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="IAM Trainer" />
+<meta name="mobile-web-app-capable" content="yes" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="icon-180.png" />
+<meta name="theme-color" content="#0e1726" />
+<title>IAM Aptitude Trainer</title>
+<style>/* IAM Aptitude Trainer — shared styles */
+:root {
+  --bg: #0e1726;
+  --panel: #16223a;
+  --panel-2: #1d2c49;
+  --line: #2a3b5e;
+  --text: #e8eefc;
+  --muted: #93a4c4;
+  --accent: #4da3ff;
+  --accent-2: #34d19c;
+  --danger: #ff6b6b;
+  --warn: #ffcb52;
+  --radius: 14px;
+  --shadow: 0 8px 30px rgba(0,0,0,.35);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, "Segoe UI", "Sarabun", system-ui, sans-serif;
+  background: radial-gradient(1200px 600px at 50% -10%, #17263f 0%, var(--bg) 60%);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 960px; margin: 0 auto; padding: 24px 18px 64px; }
+a { color: var(--accent); text-decoration: none; }
+
+/* Header */
+.topbar { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+.topbar .logo {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  display: grid; place-items: center; font-size: 20px; flex: 0 0 auto;
+}
+.topbar h1 { font-size: 20px; margin: 0; line-height: 1.2; }
+.topbar .sub { color: var(--muted); font-size: 13px; }
+.back { font-size: 14px; color: var(--muted); display: inline-flex; gap: 6px; align-items: center; margin-bottom: 16px; }
+
+/* Cards / grid */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+.card {
+  background: linear-gradient(180deg, var(--panel), var(--panel-2));
+  border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 16px; box-shadow: var(--shadow); position: relative;
+  display: flex; flex-direction: column; gap: 8px; transition: transform .12s ease, border-color .12s;
+}
+a.card:hover { transform: translateY(-3px); border-color: var(--accent); }
+.card.disabled { opacity: .5; }
+.card .ico { font-size: 26px; }
+.card h3 { margin: 0; font-size: 16px; }
+.card p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.4; }
+.card .best { margin-top: auto; font-size: 12px; color: var(--accent-2); font-weight: 600; }
+.tag { position: absolute; top: 12px; right: 12px; font-size: 10px; text-transform: uppercase;
+  letter-spacing: .5px; padding: 3px 8px; border-radius: 20px; background: var(--panel-2); color: var(--muted); border: 1px solid var(--line); }
+.tag.ready { color: var(--accent-2); border-color: var(--accent-2); }
+.tag.soon { color: var(--warn); border-color: var(--warn); }
+
+/* Panels used inside exam pages */
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+.panel + .panel { margin-top: 16px; }
+
+/* HUD (timer + score) */
+.hud { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; }
+.stat { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 16px; min-width: 96px; text-align: center; }
+.stat .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+.stat .value { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat.time .value { color: var(--accent); }
+.stat.score .value { color: var(--accent-2); }
+.stat.danger .value { color: var(--danger); }
+
+/* Buttons */
+.btn {
+  appearance: none; border: 1px solid var(--line); background: var(--panel-2); color: var(--text);
+  font-size: 15px; font-weight: 600; padding: 11px 20px; border-radius: 10px; cursor: pointer;
+  transition: transform .08s, background .12s, border-color .12s;
+}
+.btn:hover { border-color: var(--accent); }
+.btn:active { transform: scale(.97); }
+.btn.primary { background: linear-gradient(135deg, var(--accent), #2f7fe0); border-color: transparent; }
+.btn.good { background: linear-gradient(135deg, var(--accent-2), #21a97b); border-color: transparent; }
+.btn.ghost { background: transparent; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+
+/* Options / answers */
+.options { display: grid; gap: 10px; }
+.opt {
+  display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--panel-2); cursor: pointer; font-size: 16px;
+  transition: border-color .1s, background .1s;
+}
+.opt:hover { border-color: var(--accent); }
+.opt.selected { border-color: var(--accent); background: #22344f; }
+.opt.correct { border-color: var(--accent-2); background: rgba(52,209,156,.14); }
+.opt.wrong { border-color: var(--danger); background: rgba(255,107,107,.12); }
+.opt .key { width: 26px; height: 26px; border-radius: 6px; background: var(--panel); display: grid; place-items: center; font-size: 13px; font-weight: 700; color: var(--muted); flex: 0 0 auto; }
+
+/* Progress bar */
+.progress { height: 8px; background: var(--panel-2); border-radius: 6px; overflow: hidden; margin: 6px 0 18px; }
+.progress > div { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); width: 0%; transition: width .3s; }
+
+/* Result table */
+table.results { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.results th, table.results td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+table.results th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; }
+
+.muted { color: var(--muted); }
+.center { text-align: center; }
+.big { font-size: 48px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.hidden { display: none !important; }
+.pill { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 12px; background: var(--panel-2); border: 1px solid var(--line); color: var(--muted); }
+
+/* Touch / Apple Pencil — keep the app feeling native on iPad */
+body { -webkit-text-size-adjust: 100%; }
+.btn, .opt, .card, .tag { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; }
+.wrap { padding-left: max(18px, env(safe-area-inset-left)); padding-right: max(18px, env(safe-area-inset-right)); }
+
+/* Drawing surface for pen-based modules */
+.draw-stage { position: relative; width: 100%; background: var(--panel-2); border: 1px solid var(--line);
+  border-radius: 12px; overflow: hidden; touch-action: none; }
+.draw-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.draw-stage .guide { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.draw-toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- Static fallback: visible only when the viewer can't run JavaScript
+       (e.g. the iPad Files preview). Safari replaces this instantly. -->
+  <div class="wrap" style="max-width:640px">
+    <div class="topbar"><div class="logo">✈️</div>
+      <div><h1>IAM Aptitude Trainer</h1><div class="sub">needs Safari to run</div></div></div>
+    <div class="panel">
+      <h3 style="margin-top:0">This viewer can't run the app — open it in Safari:</h3>
+      <ol style="line-height:1.9; margin:0; padding-left:22px; color:var(--text)">
+        <li>Open <b>Safari</b></li>
+        <li>Swipe up slowly from the bottom edge to show the <b>Dock</b></li>
+        <li>Press &amp; hold the <b>Files</b> icon → drag it to the screen edge → Split View</li>
+        <li>In Files, press &amp; hold <b>IAM-Trainer.html</b> until it lifts, then <b>drag it onto the Safari side</b> and let go</li>
+      </ol>
+      <p class="muted" style="margin-bottom:0">The app then runs fully offline in Safari. เปิดไฟล์นี้ด้วย Safari (ลากไฟล์จากแอป Files ไปวางในหน้าต่าง Safari)</p>
+    </div>
+  </div>
+</div>
+<script>/* IAM Aptitude Trainer — shared engine
+ * Small dependency-free helpers every exam module reuses:
+ *   IAM.Timer      — count-up / count-down with tick callback
+ *   IAM.Store      — localStorage best-scores keyed by exam id
+ *   IAM.fmt        — mm:ss / number formatting
+ *   IAM.EXAMS      — registry the hub reads to render cards
+ * Keeping this in one place means each new exam module is mostly just
+ * its own questions + render logic.
+ */
+window.IAM = (function () {
+  const STORE_KEY = 'iam_aptitude_v1';
+
+  /* ---- Registry: add a line here when a new exam module is built ---- */
+  const EXAMS = [
+    {
+      id: 'scanning-6',
+      title: 'Scanning "6"',
+      thai: 'ขีดฆ่าเลข 6',
+      icon: '🔎',
+      desc: 'IAM skim test: cross out every 6, row by row, 2 pages in 4 minutes. Original paper or random digits.',
+      file: 'exams/scanning-6.html',
+      status: 'ready'
+    },
+    {
+      id: 'mental-math',
+      title: 'Mental Arithmetic',
+      thai: 'คณิตคิดเร็ว',
+      icon: '🧮',
+      desc: 'Speed/accuracy sample module — add, subtract, multiply against the clock. Included as a working demo of the platform.',
+      file: 'exams/mental-math.html',
+      status: 'ready'
+    },
+    {
+      id: 'pencil-tracing',
+      title: 'Apple Pencil Test — Line Tracing',
+      thai: 'ทดสอบปากกา · ลากเส้นตามเส้นทาง',
+      icon: '✍️',
+      desc: 'Confirms your Apple Pencil works and demos the drawing engine: trace the path, get scored on accuracy. Also a real coordination-style drill.',
+      file: 'exams/pencil-tracing.html',
+      status: 'ready'
+    }
+    // Each exam you send becomes another entry here, e.g.:
+    // { id:'number-memory', title:'Number Memory', thai:'ความจำตัวเลข', icon:'🔢',
+    //   desc:'…', file:'exams/number-memory.html', status:'ready' },
+  ];
+
+  /* ---- Persistent best-scores ---- */
+  const Store = {
+    _all() { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) { return {}; } },
+    _save(o) { localStorage.setItem(STORE_KEY, JSON.stringify(o)); },
+    getBest(id) { return this._all()[id] || null; },
+    // record keeps the best by `metric` (higher-is-better unless lowerBetter)
+    record(id, result, { lowerBetter = false } = {}) {
+      const all = this._all();
+      const prev = all[id];
+      const better = !prev
+        || (lowerBetter ? result.metric < prev.metric : result.metric > prev.metric);
+      if (better) { all[id] = { ...result, at: Date.now() }; this._save(all); }
+      return better;
+    },
+    clear(id) { const a = this._all(); delete a[id]; this._save(a); }
+  };
+
+  /* ---- Timer ---- */
+  class Timer {
+    constructor({ countdown = false, from = 0, onTick = () => {}, onEnd = () => {} } = {}) {
+      this.countdown = countdown; this.from = from;
+      this.onTick = onTick; this.onEnd = onEnd;
+      this.ms = countdown ? from * 1000 : 0; this._raf = null; this._last = null;
+    }
+    start() {
+      this._last = performance.now();
+      const loop = (t) => {
+        const dt = t - this._last; this._last = t;
+        this.ms += this.countdown ? -dt : dt;
+        if (this.countdown && this.ms <= 0) { this.ms = 0; this.onTick(0); this.stop(); this.onEnd(); return; }
+        this.onTick(this.ms);
+        this._raf = requestAnimationFrame(loop);
+      };
+      this._raf = requestAnimationFrame(loop);
+    }
+    stop() { if (this._raf) cancelAnimationFrame(this._raf); this._raf = null; }
+    get seconds() { return this.ms / 1000; }
+  }
+
+  /* ---- Apple Pencil / touch drawing surface ----
+   * High-DPI canvas with pointer input, pressure (Apple Pencil reports it),
+   * and palm rejection. Records strokes so a module can grade a drawing
+   * (e.g. tracing accuracy, coordination) or just capture handwriting.
+   */
+  class Pencil {
+    constructor(canvas, {
+      color = '#4da3ff', width = 3, pressure = true,
+      palmRejection = true, onStart = () => {}, onPoint = () => {}, onEnd = () => {}
+    } = {}) {
+      this.c = canvas; this.ctx = canvas.getContext('2d');
+      this.color = color; this.width = width; this.pressure = pressure;
+      this.palmRejection = palmRejection;
+      this.onStart = onStart; this.onPoint = onPoint; this.onEnd = onEnd;
+      this.strokes = []; this._cur = null; this._penSeen = false; this._activeId = null;
+      this.c.style.touchAction = 'none';            // stop scroll/zoom stealing the drag
+      this._fit();
+      this._ro = new ResizeObserver(() => this._fit());
+      this._ro.observe(this.c);
+      this.c.addEventListener('pointerdown', e => this._down(e));
+      this.c.addEventListener('pointermove', e => this._move(e));
+      this.c.addEventListener('pointerup',   e => this._up(e));
+      this.c.addEventListener('pointercancel', e => this._up(e));
+      this.c.addEventListener('pointerleave',  e => this._up(e));
+    }
+    _fit() {                                        // match backing store to CSS size × DPR
+      const dpr = window.devicePixelRatio || 1;
+      const r = this.c.getBoundingClientRect();
+      if (!r.width) return;
+      const snap = this.strokes;
+      this.c.width = Math.round(r.width * dpr);
+      this.c.height = Math.round(r.height * dpr);
+      this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      this._w = r.width; this._h = r.height;
+      this.strokes = snap; this.redraw();
+    }
+    _pos(e) {
+      const r = this.c.getBoundingClientRect();
+      return { x: e.clientX - r.left, y: e.clientY - r.top, p: this.pressure ? (e.pressure || 0.5) : 0.5, t: e.pointerType };
+    }
+    _accept(e) {
+      if (e.pointerType === 'pen') this._penSeen = true;
+      // once a real pen has touched the screen, ignore fingers (palm rejection)
+      if (this.palmRejection && this._penSeen && e.pointerType === 'touch') return false;
+      return true;
+    }
+    _down(e) {
+      if (!this._accept(e)) return;
+      e.preventDefault();
+      this._activeId = e.pointerId;
+      this.c.setPointerCapture?.(e.pointerId);
+      const pt = this._pos(e);
+      this._cur = { color: this.color, pts: [pt] };
+      this.strokes.push(this._cur);
+      this.onStart(pt);
+    }
+    _move(e) {
+      if (this._cur == null || e.pointerId !== this._activeId) return;
+      e.preventDefault();
+      // coalesced events give smoother Apple Pencil lines at high sample rate
+      const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+      for (const ev of evs) {
+        const pt = this._pos(ev.pointerId != null ? ev : e);
+        this._cur.pts.push(pt);
+        this._segment(this._cur.pts.length - 2);
+        this.onPoint(pt);
+      }
+    }
+    _up(e) {
+      if (this._cur == null || e.pointerId !== this._activeId) return;
+      const done = this._cur; this._cur = null; this._activeId = null;
+      this.onEnd(done);
+    }
+    _segment(i) {                                   // draw one segment of the current stroke
+      const s = this._cur; if (!s || i < 0) return;
+      const a = s.pts[i], b = s.pts[i + 1]; if (!a || !b) return;
+      this.ctx.strokeStyle = s.color;
+      this.ctx.lineCap = 'round'; this.ctx.lineJoin = 'round';
+      this.ctx.lineWidth = this.pressure ? this.width * (0.4 + b.p * 1.2) : this.width;
+      this.ctx.beginPath(); this.ctx.moveTo(a.x, a.y); this.ctx.lineTo(b.x, b.y); this.ctx.stroke();
+    }
+    redraw() {
+      this.ctx.clearRect(0, 0, this._w, this._h);
+      for (const s of this.strokes) {
+        for (let i = 0; i < s.pts.length - 1; i++) {
+          const a = s.pts[i], b = s.pts[i + 1];
+          this.ctx.strokeStyle = s.color;
+          this.ctx.lineCap = 'round'; this.ctx.lineJoin = 'round';
+          this.ctx.lineWidth = this.pressure ? this.width * (0.4 + b.p * 1.2) : this.width;
+          this.ctx.beginPath(); this.ctx.moveTo(a.x, a.y); this.ctx.lineTo(b.x, b.y); this.ctx.stroke();
+        }
+      }
+    }
+    clear() { this.strokes = []; this.ctx.clearRect(0, 0, this._w, this._h); }
+    undo() { this.strokes.pop(); this.redraw(); }
+    get size() { return { w: this._w, h: this._h }; }
+    allPoints() { return this.strokes.flatMap(s => s.pts); }
+  }
+
+  /* ---- Formatting ---- */
+  const fmt = {
+    clock(ms) {
+      const s = Math.max(0, Math.floor(ms / 1000));
+      const m = Math.floor(s / 60);
+      return `${String(m).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+    },
+    secs(ms) { return (ms / 1000).toFixed(1) + 's'; }
+  };
+
+  /* ---- tiny DOM helper ---- */
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+  function el(tag, props = {}, ...kids) {
+    const n = document.createElement(tag);
+    Object.entries(props).forEach(([k, v]) => {
+      if (k === 'class') n.className = v;
+      else if (k === 'html') n.innerHTML = v;
+      else if (k.startsWith('on') && typeof v === 'function') n.addEventListener(k.slice(2), v);
+      else n.setAttribute(k, v);
+    });
+    kids.flat().forEach(k => n.append(k?.nodeType ? k : document.createTextNode(k)));
+    return n;
+  }
+
+  return { EXAMS, Store, Timer, Pencil, fmt, $, $$, el };
+})();
+</script>
+<script>
+const MODULES = {"scanning-6":{"markup":"<style>\n    /* Paper-look test sheet — the real exam is black digits on white paper */\n    .sheet { background: #f8f7f2; border-radius: 12px; padding: 14px 10px; box-shadow: var(--shadow); }\n    .s6-grid { display: grid; grid-template-columns: repeat(28, 1fr); gap: 0; user-select: none; -webkit-user-select: none; touch-action: manipulation; }\n    .s6-cell { position: relative; display: grid; place-items: center; aspect-ratio: 1 / 1.05;\n      color: #1c1c1c; font-size: clamp(11px, 2.6vw, 19px); font-weight: 500;\n      font-variant-numeric: tabular-nums; cursor: pointer; border-radius: 4px; }\n    .s6-cell.x { color: #6b6b6b; }\n    .s6-cell.x::after { content: \"✕\"; position: absolute; inset: 0; display: grid; place-items: center;\n      color: #2456d6; font-size: 1.35em; font-weight: 700; line-height: 1; }\n    /* review colouring */\n    .s6-cell.rv-ok::after { color: #0d9b6c; }\n    .s6-cell.rv-wrong { background: rgba(255, 80, 80, .28); }\n    .s6-cell.rv-wrong::after { color: #d23030; }\n    .s6-cell.rv-miss { background: rgba(255, 190, 40, .45); border-radius: 50%; }\n    .s6-cell.rv-out { opacity: .35; }\n    .pagebtns { display: flex; gap: 10px; align-items: center; margin-top: 12px; }\n    .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); margin: 10px 0 6px; }\n    .legend span { display: inline-flex; align-items: center; gap: 6px; }\n    .dot { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }\n  </style>\n\n  <div class=\"wrap\">\n    <a class=\"back\" href=\"#\" data-home>← All exams</a>\n    <div class=\"topbar\">\n      <div class=\"logo\">🔎</div>\n      <div>\n        <h1>Scanning \"6\"</h1>\n        <div class=\"sub\">Skim / cancellation test · 4 minutes · 2 pages · ขีดฆ่าเลข 6</div>\n      </div>\n    </div>\n\n    <!-- START -->\n    <div class=\"panel\" id=\"start\">\n      <h3 style=\"margin-top:0\">Rules</h3>\n      <p class=\"muted\" style=\"line-height:1.55\">\n        Work <b>row by row, left to right</b>. Tap every <b>6</b> to cross it out — Apple Pencil or finger.\n        Tap again to un-cross. Flip to page 2 with the page button. The test <b>locks the instant 4:00 ends</b>.\n        Missed 6s are only counted up to the last 6 you crossed.</p>\n      <div class=\"btn-row\">\n        <button class=\"btn primary\" id=\"startOrig\">Start — Original paper</button>\n        <button class=\"btn\" id=\"startRand\">Start — Random digits</button>\n      </div>\n      <p class=\"muted\" style=\"font-size:12.5px; margin-bottom:0\">Original = the exact 2,072 digits of your IAM paper (452 sixes).\n        Random = same format &amp; difficulty, fresh digits every attempt.</p>\n    </div>\n\n    <!-- PLAY -->\n    <div class=\"panel hidden\" id=\"play\">\n      <div class=\"hud\">\n        <div class=\"stat time\"><div class=\"label\">Time</div><div class=\"value\" id=\"tVal\">4:00</div></div>\n        <div class=\"stat\"><div class=\"label\">Page</div><div class=\"value\" id=\"pVal\">1/2</div></div>\n        <button class=\"btn ghost\" id=\"finishBtn\" style=\"margin-left:auto\">Finish ▸</button>\n      </div>\n      <div class=\"sheet\">\n        <div class=\"s6-grid\" id=\"g0\"></div>\n        <div class=\"s6-grid hidden\" id=\"g1\"></div>\n      </div>\n      <div class=\"pagebtns\">\n        <button class=\"btn\" id=\"prevBtn\" disabled>← Page 1</button>\n        <button class=\"btn primary\" id=\"nextBtn\">Page 2 →</button>\n      </div>\n    </div>\n\n    <!-- RESULT -->\n    <div class=\"panel hidden\" id=\"result\">\n      <h3 class=\"center\" style=\"margin-top:0\">Result — <span id=\"rMode\"></span></h3>\n      <div class=\"center\"><div class=\"big\" id=\"rPct\">0%</div><div class=\"muted\">of all 6s crossed</div></div>\n      <table class=\"results\" style=\"margin-top:16px\">\n        <tr><th>Crossed 6s</th><td id=\"rCross\">—</td></tr>\n        <tr><th>Missed 6s (up to your last crossed 6)</th><td id=\"rMiss\">—</td></tr>\n        <tr><th>Wrongly crossed (not a 6)</th><td id=\"rWrong\">—</td></tr>\n        <tr><th>Reached</th><td id=\"rReach\">—</td></tr>\n        <tr><th>Best</th><td id=\"rBest\">—</td></tr>\n      </table>\n      <div class=\"btn-row\">\n        <button class=\"btn primary\" id=\"reviewBtn\">Review mistakes</button>\n        <button class=\"btn good\" id=\"againBtn\">Try again</button>\n        <a class=\"btn ghost\" href=\"#\" data-home>Back to exams</a>\n      </div>\n    </div>\n\n    <!-- REVIEW -->\n    <div class=\"panel hidden\" id=\"review\">\n      <h3 style=\"margin-top:0\">Review</h3>\n      <div class=\"legend\">\n        <span><span class=\"dot\" style=\"background:rgba(13,155,108,.25); outline:2px solid #0d9b6c\">✓</span> crossed correctly</span>\n        <span><span class=\"dot\" style=\"background:rgba(255,80,80,.4)\"></span> wrongly crossed</span>\n        <span><span class=\"dot\" style=\"background:rgba(255,190,40,.55); border-radius:50%\"></span> missed 6</span>\n        <span><span class=\"dot\" style=\"background:#ddd; opacity:.5\"></span> beyond your reach</span>\n      </div>\n      <div class=\"sheet\"><div class=\"s6-grid\" id=\"rvGrid0\"></div></div>\n      <div class=\"muted center\" style=\"margin:8px 0\">— page 2 —</div>\n      <div class=\"sheet\"><div class=\"s6-grid\" id=\"rvGrid1\"></div></div>\n      <div class=\"btn-row\">\n        <button class=\"btn good\" id=\"againBtn2\">Try again</button>\n        <a class=\"btn ghost\" href=\"#\" data-home>Back to exams</a>\n      </div>\n    </div>\n  </div>","script":"const EXAM_ID = 'scanning-6';\n    const DURATION = 240; // 4 minutes\n    const { $, Store, Timer } = IAM;\n\n    /* ==== The exact digits of the user's IAM paper (from the PDF text layer,\n       structure verified against the scan: 36+38 rows × 28 digits, 452 sixes) ==== */\n    const ORIGINAL = [\n      [\"3304567866421547645641221567\",\n       \"6421547645641221567456786648\",\n       \"5641221674567845678664215476\",\n       \"4564122156741221671221674567\",\n       \"8464215476456221674542154786\",\n       \"6421547645641221567456564122\",\n       \"6745678456786642154762167125\",\n       \"4564122156741221671221674567\",\n       \"4764564122156745678664821684\",\n       \"5641221674567845678664215456\",\n       \"2154764564122156745656412247\",\n       \"6745678456786647845221674567\",\n       \"8456786642154764215476456481\",\n       \"4564122156741221671221674567\",\n       \"8464215476456221674542154786\",\n       \"6421547645641221567456564122\",\n       \"6745678456786642154762167125\",\n       \"4564122156741221621547645641\",\n       \"2215674565641224767456784562\",\n       \"6745678456786647845221674567\",\n       \"8456786642154764215476456481\",\n       \"2154764564122156745656412247\",\n       \"6745678456786647845221674567\",\n       \"8456786642154764215476456481\",\n       \"4564122156741221671221674567\",\n       \"8464215476456221674542154786\",\n       \"6421547645641221567456564122\",\n       \"4564122156741221671221674567\",\n       \"4764564122156745678664821684\",\n       \"5641221674567845678664215456\",\n       \"6745678456786647845221674567\",\n       \"8456786642154764215476456481\",\n       \"4564122156741221671221674567\",\n       \"8464215476456221674542154786\",\n       \"6421547645641221567456564122\",\n       \"6421547645641221567456786648\"],\n      [\"5641221674567845678664215476\",\n       \"4564122156741221671221674567\",\n       \"8464215476456221674542154786\",\n       \"4564122156741221621547645641\",\n       \"2215674565641224767456784562\",\n       \"6745678456786647845221674567\",\n       \"8456786642154764215476456481\",\n       \"2154764564122156745656412247\",\n       \"6456412215674567866464215476\",\n       \"8464215476456221674542154786\",\n       \"4564122156741221621547645641\",\n       \"7845678664784522167456736862\",\n       \"8456786642154764215476456481\",\n       \"4564122156741221671221674567\",\n       \"8464215476456221674542154786\",\n       \"6421547645641221567456564122\",\n       \"6745678456786642154762167125\",\n       \"4564122156741221621547645641\",\n       \"2215674565641224767456784562\",\n       \"6745678456786647475364465423\",\n       \"3664277566212437862614996426\",\n       \"6745656412264254561459956612\",\n       \"6745678456786642154762167125\",\n       \"4564122156741221621547645641\",\n       \"2215674565641224767456784562\",\n       \"6745678456786647475364465423\",\n       \"3664277566212437862614996426\",\n       \"4215476456221674542154786166\",\n       \"6421547645641221567456564122\",\n       \"6745678456786642154762167125\",\n       \"4564122156741221621547645641\",\n       \"2215674565641224767454267642\",\n       \"7475364465423169662129661267\",\n       \"3664277566212437862614996426\",\n       \"4215476456221674542154786166\",\n       \"6421547645641221567456564122\",\n       \"6745678456786642154762167125\",\n       \"4564122156741221621547645641\"]\n    ];\n\n    /* Random mode: same shape (36+38 rows × 28) and same digit distribution\n       as the original paper, so difficulty and 6-density match. */\n    function genRandom() {\n      const hist = { 0: 1, 1: 253, 2: 293, 3: 15, 4: 406, 5: 292, 6: 452, 7: 254, 8: 96, 9: 10 };\n      const pool = Object.entries(hist).flatMap(([d, n]) => Array(n).fill(d));\n      const pick = () => pool[Math.floor(Math.random() * pool.length)];\n      return [36, 38].map(rows =>\n        Array.from({ length: rows }, () =>\n          Array.from({ length: 28 }, pick).join('')));\n    }\n\n    /* Pure scoring — kept standalone so it can be unit-tested headlessly.\n       flat: all digits in reading order (page1 rows, then page2 rows).\n       crossed: Set of flat indices the user left crossed at the end. */\n    function scoreScanning(flat, crossed) {\n      let total6 = 0;\n      for (let i = 0; i < flat.length; i++) if (flat[i] === '6') total6++;\n      let crossed6 = 0, wrong = 0, last6 = -1;\n      crossed.forEach(i => {\n        if (flat[i] === '6') { crossed6++; if (i > last6) last6 = i; }\n        else wrong++;\n      });\n      let missed = 0;\n      for (let i = 0; i < last6; i++) if (flat[i] === '6' && !crossed.has(i)) missed++;\n      return { total6, crossed6, wrong, missed, last6,\n               pct: total6 ? Math.round(100 * crossed6 / total6) : 0 };\n    }\n\n    /* ==== state ==== */\n    let pages, flat, crossed, timer, locked, mode, penSeen = false;\n\n    function buildGrids() {\n      let idx = 0;\n      [0, 1].forEach(p => {\n        const g = $('#g' + p);\n        g.innerHTML = '';\n        const frag = document.createDocumentFragment();\n        for (const row of pages[p]) {\n          for (const ch of row) {\n            const c = document.createElement('div');\n            c.className = 's6-cell';\n            c.textContent = ch;\n            c.dataset.i = idx++;\n            frag.append(c);\n          }\n        }\n        g.append(frag);\n      });\n    }\n\n    function onTap(e) {\n      if (locked) return;\n      if (e.pointerType === 'pen') penSeen = true;\n      if (penSeen && e.pointerType === 'touch') return;   // palm rejection\n      const cell = e.target.closest('.s6-cell');\n      if (!cell) return;\n      e.preventDefault();\n      const i = Number(cell.dataset.i);\n      if (crossed.has(i)) { crossed.delete(i); cell.classList.remove('x'); }\n      else { crossed.add(i); cell.classList.add('x'); }\n    }\n\n    function showPage(p) {\n      $('#g0').classList.toggle('hidden', p !== 0);\n      $('#g1').classList.toggle('hidden', p !== 1);\n      $('#pVal').textContent = (p + 1) + '/2';\n      $('#prevBtn').disabled = p === 0;\n      $('#nextBtn').disabled = p === 1;\n      window.scrollTo({ top: 0 });\n    }\n\n    function start(m) {\n      mode = m;\n      pages = m === 'original' ? ORIGINAL : genRandom();\n      flat = pages[0].join('') + pages[1].join('');\n      crossed = new Set();\n      locked = false; penSeen = false;\n      buildGrids();\n      $('#start').classList.add('hidden');\n      $('#result').classList.add('hidden');\n      $('#review').classList.add('hidden');\n      $('#play').classList.remove('hidden');\n      showPage(0);\n      timer = new Timer({\n        countdown: true, from: DURATION,\n        onTick: (ms) => {\n          const el = $('#tVal');\n          if (!el) { timer.stop(); return; }        // page left mid-run\n          el.textContent = IAM.fmt.clock(ms);\n          el.closest('.stat').classList.toggle('danger', ms < 30000);\n        },\n        onEnd: finish\n      });\n      timer.start();\n    }\n\n    function finish() {\n      if (locked) return;\n      locked = true;\n      timer.stop();\n      const s = scoreScanning(flat, crossed);\n      $('#play').classList.add('hidden');\n      $('#result').classList.remove('hidden');\n      $('#rMode').textContent = mode === 'original' ? 'Original paper' : 'Random digits';\n      $('#rPct').textContent = s.pct + '%';\n      $('#rCross').textContent = `${s.crossed6} of ${s.total6}  (${s.pct}%)`;\n      $('#rMiss').textContent = s.missed;\n      $('#rWrong').textContent = s.wrong;\n      $('#rReach').textContent = reachLabel(s.last6);\n      const isBest = Store.record(EXAM_ID, {\n        metric: s.crossed6,\n        label: `${s.crossed6}/${s.total6} (${s.pct}%) · miss ${s.missed} · wrong ${s.wrong}`\n      });\n      const best = Store.getBest(EXAM_ID);\n      $('#rBest').textContent = (best ? best.label : '—') + (isBest ? '  🎉 new best!' : '');\n      buildReview(s);\n    }\n\n    function reachLabel(last6) {\n      if (last6 < 0) return 'no 6 crossed';\n      const p1len = pages[0].length * 28;\n      const page = last6 < p1len ? 1 : 2;\n      const row = page === 1 ? Math.floor(last6 / 28) + 1 : Math.floor((last6 - p1len) / 28) + 1;\n      return `page ${page}, row ${row}  (${Math.round(100 * (last6 + 1) / flat.length)}% of the test)`;\n    }\n\n    function buildReview(s) {\n      let idx = 0;\n      [0, 1].forEach(p => {\n        const g = $('#rvGrid' + p);\n        g.innerHTML = '';\n        const frag = document.createDocumentFragment();\n        for (const row of pages[p]) {\n          for (const ch of row) {\n            const c = document.createElement('div');\n            c.className = 's6-cell';\n            c.textContent = ch;\n            const isX = crossed.has(idx);\n            if (isX && ch === '6') c.classList.add('x', 'rv-ok');\n            else if (isX) c.classList.add('x', 'rv-wrong');\n            else if (ch === '6' && idx < s.last6) c.classList.add('rv-miss');\n            else if (idx > s.last6) c.classList.add('rv-out');\n            idx++;\n            frag.append(c);\n          }\n        }\n        g.append(frag);\n      });\n    }\n\n    $('#startOrig').addEventListener('click', () => start('original'));\n    $('#startRand').addEventListener('click', () => start('random'));\n    $('#prevBtn').addEventListener('click', () => showPage(0));\n    $('#nextBtn').addEventListener('click', () => showPage(1));\n    $('#finishBtn').addEventListener('click', finish);\n    $('#reviewBtn').addEventListener('click', () => {\n      $('#result').classList.add('hidden');\n      $('#review').classList.remove('hidden');\n      window.scrollTo({ top: 0 });\n    });\n    const restart = () => {\n      $('#result').classList.add('hidden');\n      $('#review').classList.add('hidden');\n      $('#start').classList.remove('hidden');\n      window.scrollTo({ top: 0 });\n    };\n    $('#againBtn').addEventListener('click', restart);\n    $('#againBtn2').addEventListener('click', restart);\n    $('#g0').addEventListener('pointerdown', onTap);\n    $('#g1').addEventListener('pointerdown', onTap);"},"mental-math":{"markup":"<div class=\"wrap\">\n    <a class=\"back\" href=\"#\" data-home>← All exams</a>\n    <div class=\"topbar\">\n      <div class=\"logo\">🧮</div>\n      <div>\n        <h1>Mental Arithmetic <span class=\"pill\">demo module</span></h1>\n        <div class=\"sub\">Speed &amp; accuracy under time pressure · คณิตคิดเร็ว</div>\n      </div>\n    </div>\n\n    <!-- START -->\n    <div class=\"panel\" id=\"start\">\n      <h3 style=\"margin-top:0\">How it works</h3>\n      <p class=\"muted\">Answer as many problems as you can before the timer runs out. Each correct answer is +1,\n        each wrong answer is −1 (so guessing costs you, just like the real battery). Type the number and press Enter.</p>\n      <label class=\"muted\" style=\"font-size:14px\">Time limit&nbsp;\n        <select id=\"dur\" class=\"btn ghost\" style=\"padding:6px 10px\">\n          <option value=\"60\">60 seconds</option>\n          <option value=\"90\" selected>90 seconds</option>\n          <option value=\"120\">120 seconds</option>\n        </select>\n      </label>\n      <label class=\"muted\" style=\"font-size:14px; margin-left:14px\">Difficulty&nbsp;\n        <select id=\"diff\" class=\"btn ghost\" style=\"padding:6px 10px\">\n          <option value=\"easy\">Easy (+, −)</option>\n          <option value=\"med\" selected>Medium (+, −, ×)</option>\n          <option value=\"hard\">Hard (bigger, ÷)</option>\n        </select>\n      </label>\n      <div class=\"btn-row\">\n        <button class=\"btn primary\" id=\"startBtn\">Start</button>\n      </div>\n    </div>\n\n    <!-- PLAY -->\n    <div class=\"panel hidden\" id=\"play\">\n      <div class=\"hud\">\n        <div class=\"stat time\"><div class=\"label\">Time</div><div class=\"value\" id=\"tVal\">--</div></div>\n        <div class=\"stat score\"><div class=\"label\">Score</div><div class=\"value\" id=\"sVal\">0</div></div>\n        <div class=\"stat\"><div class=\"label\">Done</div><div class=\"value\" id=\"dVal\">0</div></div>\n      </div>\n      <div class=\"progress\"><div id=\"bar\"></div></div>\n      <div class=\"center\" style=\"padding:16px 0\">\n        <div class=\"big\" id=\"q\">3 + 4</div>\n        <input id=\"ans\" inputmode=\"numeric\" autocomplete=\"off\"\n               style=\"margin-top:18px; font-size:32px; width:180px; text-align:center; padding:8px 12px;\n                      border-radius:12px; border:1px solid var(--line); background:var(--panel-2); color:var(--text)\" />\n        <div class=\"muted\" style=\"margin-top:10px; font-size:13px\">Type your answer, press Enter</div>\n      </div>\n    </div>\n\n    <!-- RESULT -->\n    <div class=\"panel hidden\" id=\"result\">\n      <h3 style=\"margin-top:0\" class=\"center\">Session complete</h3>\n      <div class=\"center\">\n        <div class=\"big\" id=\"finalScore\">0</div>\n        <div class=\"muted\">final score</div>\n      </div>\n      <table class=\"results\" style=\"margin-top:18px\">\n        <tr><th>Correct</th><td id=\"rCorrect\">0</td></tr>\n        <tr><th>Wrong</th><td id=\"rWrong\">0</td></tr>\n        <tr><th>Attempted</th><td id=\"rTotal\">0</td></tr>\n        <tr><th>Accuracy</th><td id=\"rAcc\">0%</td></tr>\n        <tr><th>Best score</th><td id=\"rBest\">—</td></tr>\n      </table>\n      <div class=\"btn-row\">\n        <button class=\"btn good\" id=\"againBtn\">Try again</button>\n        <a class=\"btn ghost\" href=\"#\" data-home>Back to exams</a>\n      </div>\n    </div>\n  </div>","script":"const EXAM_ID = 'mental-math';\n    const { $, Store, Timer, fmt } = IAM;\n    let timer, score, correct, wrong, done, cur, duration;\n\n    function genQ(diff) {\n      const r = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;\n      let a, b, op, ans;\n      const ops = diff === 'easy' ? ['+', '-'] : diff === 'med' ? ['+', '-', '×'] : ['+', '-', '×', '÷'];\n      op = ops[r(0, ops.length - 1)];\n      if (op === '+') { a = r(diff==='hard'?20:5, diff==='hard'?99:40); b = r(2, diff==='hard'?99:40); ans = a + b; }\n      else if (op === '-') { a = r(10, diff==='hard'?99:60); b = r(2, a); ans = a - b; }\n      else if (op === '×') { a = r(2, diff==='hard'?19:12); b = r(2, diff==='hard'?19:12); ans = a * b; }\n      else { b = r(2, 12); ans = r(2, 12); a = b * ans; } // ÷ guaranteed integer\n      return { text: `${a} ${op} ${b}`, ans };\n    }\n\n    function next() {\n      cur = genQ($('#diff').value);\n      $('#q').textContent = cur.text;\n      $('#ans').value = '';\n      $('#ans').focus();\n    }\n\n    function updateHud() {\n      $('#sVal').textContent = score;\n      $('#dVal').textContent = done;\n    }\n\n    function submit() {\n      const val = $('#ans').value.trim();\n      if (val === '') return;\n      done++;\n      if (Number(val) === cur.ans) { score++; correct++; }\n      else { score--; wrong++; }\n      updateHud();\n      next();\n    }\n\n    function start() {\n      duration = Number($('#dur').value);\n      score = 0; correct = 0; wrong = 0; done = 0;\n      $('#start').classList.add('hidden');\n      $('#result').classList.add('hidden');\n      $('#play').classList.remove('hidden');\n      updateHud();\n      next();\n      timer = new Timer({\n        countdown: true, from: duration,\n        onTick: (ms) => {\n          $('#tVal').textContent = fmt.clock(ms);\n          $('#bar').style.width = (100 * (1 - ms / 1000 / duration)) + '%';\n          $('.stat.time').classList.toggle('danger', ms < 10000);\n        },\n        onEnd: end\n      });\n      timer.start();\n    }\n\n    function end() {\n      timer.stop();\n      $('#play').classList.add('hidden');\n      $('#result').classList.remove('hidden');\n      const acc = done ? Math.round(100 * correct / done) : 0;\n      $('#finalScore').textContent = score;\n      $('#rCorrect').textContent = correct;\n      $('#rWrong').textContent = wrong;\n      $('#rTotal').textContent = done;\n      $('#rAcc').textContent = acc + '%';\n      const isBest = Store.record(EXAM_ID, {\n        metric: score,\n        label: `${score} pts · ${acc}% acc`\n      });\n      const best = Store.getBest(EXAM_ID);\n      $('#rBest').textContent = (best ? best.label : '—') + (isBest ? '  🎉 new best!' : '');\n    }\n\n    $('#startBtn').addEventListener('click', start);\n    $('#againBtn').addEventListener('click', start);\n    $('#ans').addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });"},"pencil-tracing":{"markup":"<div class=\"wrap\">\n    <a class=\"back\" href=\"#\" data-home>← All exams</a>\n    <div class=\"topbar\">\n      <div class=\"logo\">✍️</div>\n      <div>\n        <h1>Apple Pencil Test — Line Tracing <span class=\"pill\">demo module</span></h1>\n        <div class=\"sub\">Confirms your Pencil works + a coordination-style drill · ลากเส้นตามเส้นทาง</div>\n      </div>\n    </div>\n\n    <div class=\"panel\" id=\"start\">\n      <h3 style=\"margin-top:0\">What this does</h3>\n      <p class=\"muted\">Two jobs: (1) prove your <b>Apple Pencil</b> draws smoothly here, and (2) demo the drawing\n        engine future IAM tests will use. Trace along the guide path as accurately as you can. You're scored on how\n        closely your line follows it and how much of it you cover. Palm rejection is on — rest your hand freely once\n        the Pencil is down.</p>\n      <div class=\"btn-row\"><button class=\"btn primary\" id=\"startBtn\">Start</button></div>\n    </div>\n\n    <div class=\"panel hidden\" id=\"play\">\n      <div class=\"hud\">\n        <div class=\"stat time\"><div class=\"label\">Time</div><div class=\"value\" id=\"tVal\">0.0s</div></div>\n        <div class=\"stat\"><div class=\"label\">Input</div><div class=\"value\" id=\"inpVal\" style=\"font-size:16px\">—</div></div>\n      </div>\n      <div class=\"draw-stage\" id=\"stage\" style=\"height:360px\">\n        <svg class=\"guide\" id=\"guide\" viewBox=\"0 0 800 360\" preserveAspectRatio=\"none\">\n          <path id=\"path\" fill=\"none\" stroke=\"rgba(147,164,196,.5)\" stroke-width=\"18\"\n                stroke-linecap=\"round\" stroke-dasharray=\"2 14\" />\n        </svg>\n        <canvas id=\"pad\"></canvas>\n      </div>\n      <div class=\"draw-toolbar\">\n        <button class=\"btn ghost\" id=\"undoBtn\">Undo</button>\n        <button class=\"btn ghost\" id=\"clearBtn\">Clear</button>\n        <button class=\"btn good\" id=\"doneBtn\" style=\"margin-left:auto\">Score my trace</button>\n      </div>\n      <p class=\"muted\" style=\"font-size:12px; margin-top:10px\">If your finger draws but the Pencil doesn't,\n        the Pencil isn't paired to this iPad. If nothing draws at all, tell Rohn.</p>\n    </div>\n\n    <div class=\"panel hidden\" id=\"result\">\n      <h3 class=\"center\" style=\"margin-top:0\">Result</h3>\n      <div class=\"center\"><div class=\"big\" id=\"finalScore\">0</div><div class=\"muted\">accuracy score /100</div></div>\n      <table class=\"results\" style=\"margin-top:18px\">\n        <tr><th>Path coverage</th><td id=\"rCov\">0%</td></tr>\n        <tr><th>Tracking accuracy</th><td id=\"rAcc\">0%</td></tr>\n        <tr><th>Pen detected</th><td id=\"rPen\">—</td></tr>\n        <tr><th>Best score</th><td id=\"rBest\">—</td></tr>\n      </table>\n      <div class=\"btn-row\">\n        <button class=\"btn good\" id=\"againBtn\">Try again</button>\n        <a class=\"btn ghost\" href=\"#\" data-home>Back to exams</a>\n      </div>\n    </div>\n  </div>","script":"const EXAM_ID = 'pencil-tracing';\n    const { $, Store, Timer, Pencil } = IAM;\n    let pen, timer, penUsed, t0;\n    const VB = { w: 800, h: 360 };\n\n    // A gentle S-curve as the guide path, in viewBox coords.\n    function buildPath() {\n      const pts = [];\n      for (let i = 0; i <= 100; i++) {\n        const x = 40 + (VB.w - 80) * (i / 100);\n        const y = VB.h / 2 + Math.sin(i / 100 * Math.PI * 2) * (VB.h / 2 - 50);\n        pts.push([x, y]);\n      }\n      $('#path').setAttribute('d', 'M' + pts.map(p => p.join(',')).join(' L'));\n      return pts;\n    }\n    let guidePts = buildPath();\n\n    function toVB(pt, size) {  // canvas px → viewBox coords so scoring is resolution-independent\n      return [pt.x / size.w * VB.w, pt.y / size.h * VB.h];\n    }\n    function dist2(a, b) { const dx = a[0]-b[0], dy = a[1]-b[1]; return dx*dx + dy*dy; }\n    function nearestGuideDist(p) {\n      let m = Infinity;\n      for (const g of guidePts) { const d = dist2(p, g); if (d < m) m = d; }\n      return Math.sqrt(m);\n    }\n\n    function start() {\n      $('#start').classList.add('hidden');\n      $('#result').classList.add('hidden');\n      $('#play').classList.remove('hidden');\n      penUsed = false;\n      const canvas = $('#pad');\n      pen = new Pencil(canvas, {\n        color: '#34d19c', width: 4, palmRejection: true,\n        onStart: () => { t0 = t0 || performance.now(); },\n        onPoint: (pt) => {\n          if (pt.t === 'pen') { penUsed = true; $('#inpVal').textContent = 'Pencil ✓'; }\n          else if (pt.t === 'touch') $('#inpVal').textContent = 'Finger';\n          else $('#inpVal').textContent = 'Mouse';\n        }\n      });\n      t0 = 0;\n      timer = new Timer({ onTick: (ms) => { if (t0) $('#tVal').textContent = ((performance.now()-t0)/1000).toFixed(1)+'s'; } });\n      timer.start();\n    }\n\n    function score() {\n      timer.stop();\n      const size = pen.size;\n      const drawn = pen.allPoints().map(p => toVB(p, size));\n      // Tracking accuracy: how close each drawn point sits to the guide (tolerance ~28px band)\n      let within = 0;\n      for (const p of drawn) if (nearestGuideDist(p) <= 28) within++;\n      const acc = drawn.length ? within / drawn.length : 0;\n      // Coverage: fraction of guide points that had a drawn point nearby\n      let covered = 0;\n      for (const g of guidePts) {\n        for (const p of drawn) { if (dist2(g, p) <= 28*28) { covered++; break; } }\n      }\n      const cov = guidePts.length ? covered / guidePts.length : 0;\n      const final = Math.round(100 * (0.5 * acc + 0.5 * cov));\n\n      $('#play').classList.add('hidden');\n      $('#result').classList.remove('hidden');\n      $('#finalScore').textContent = final;\n      $('#rCov').textContent = Math.round(cov * 100) + '%';\n      $('#rAcc').textContent = Math.round(acc * 100) + '%';\n      $('#rPen').textContent = penUsed ? 'Yes — Apple Pencil working ✓' : 'No pen input (finger/mouse)';\n      const isBest = Store.record(EXAM_ID, { metric: final, label: `${final}/100` });\n      const best = Store.getBest(EXAM_ID);\n      $('#rBest').textContent = (best ? best.label : '—') + (isBest ? '  🎉 new best!' : '');\n    }\n\n    $('#startBtn').addEventListener('click', start);\n    $('#againBtn').addEventListener('click', start);\n    $('#undoBtn').addEventListener('click', () => pen.undo());\n    $('#clearBtn').addEventListener('click', () => pen.clear());\n    $('#doneBtn').addEventListener('click', score);"}};
+const HUB = () => {
+  const hub = document.createElement('div');
+  hub.className = 'wrap';
+  hub.innerHTML = `
+    <div class="topbar">
+      <div class="logo">✈️</div>
+      <div><h1>IAM Aptitude Trainer</h1>
+      <div class="sub">Class 1 medical aptitude battery · practice, time &amp; score</div></div>
+    </div>
+    <p class="muted" style="margin:0 0 18px;font-size:14px;line-height:1.5">
+      Tap an exam to practice. Every module times you, checks answers and counts your score.
+      Best scores are saved on this iPad. Works fully offline.</p>
+    <div class="grid" id="grid"></div>
+    <p class="muted center" style="margin-top:40px;font-size:12px">Offline · single-file build</p>`;
+  document.getElementById('app').replaceChildren(hub);
+  const grid = hub.querySelector('#grid');
+  IAM.EXAMS.forEach(ex => {
+    const ready = ex.status === 'ready' && MODULES[ex.id];
+    const best = IAM.Store.getBest(ex.id);
+    const card = IAM.el(ready ? 'a' : 'div', { class: 'card' + (ready ? '' : ' disabled'), href: '#' });
+    if (ready) card.addEventListener('click', (e) => { e.preventDefault(); openModule(ex.id); });
+    card.append(
+      IAM.el('span', { class: 'tag ' + (ready ? 'ready' : 'soon') }, ready ? 'Ready' : 'Soon'),
+      IAM.el('div', { class: 'ico' }, ex.icon),
+      IAM.el('h3', {}, ex.title),
+      IAM.el('p', {}, ex.desc),
+      IAM.el('div', { class: 'best' }, best ? ('Best: ' + best.label) : ' ')
+    );
+    grid.append(card);
+  });
+};
+function openModule(id) {
+  const m = MODULES[id];
+  const app = document.getElementById('app');
+  app.innerHTML = m.markup;
+  // home links (back arrow, "Back to exams") return to the hub instead of navigating
+  app.querySelectorAll('[data-home]').forEach(a =>
+    a.addEventListener('click', (e) => { e.preventDefault(); HUB(); }));
+  // run the module's own script isolated so ids/vars never collide across modules
+  try { (new Function(m.script))(); }
+  catch (err) { console.error('module error', id, err); }
+}
+HUB();
+</script>
+<script>
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
