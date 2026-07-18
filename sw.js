@@ -1,5 +1,5 @@
-// IAM Trainer service worker — build c258f89bbe
-const CACHE = 'iam-c258f89bbe';
+// IAM Trainer service worker — build d1c2bcf6f1
+const CACHE = 'iam-d1c2bcf6f1';
 const ASSETS = ['./', 'index.html', 'manifest.json', 'icon-180.png', 'icon-512.png', 'cube-imgs/q1.png', 'cube-imgs/q10.png', 'cube-imgs/q11.png', 'cube-imgs/q12.png', 'cube-imgs/q13.png', 'cube-imgs/q14.png', 'cube-imgs/q15.png', 'cube-imgs/q16.png', 'cube-imgs/q17.png', 'cube-imgs/q18.png', 'cube-imgs/q19.png', 'cube-imgs/q2.png', 'cube-imgs/q20.png', 'cube-imgs/q3.png', 'cube-imgs/q4.png', 'cube-imgs/q5.png', 'cube-imgs/q6.png', 'cube-imgs/q7.png', 'cube-imgs/q8.png', 'cube-imgs/q9.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
