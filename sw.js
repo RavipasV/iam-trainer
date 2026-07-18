@@ -1,5 +1,5 @@
-// IAM Trainer service worker — build 1fdc1c94e5
-const CACHE = 'iam-1fdc1c94e5';
+// IAM Trainer service worker — build b74285d4b6
+const CACHE = 'iam-b74285d4b6';
 const ASSETS = ['./', 'index.html', 'manifest.json', 'icon-180.png', 'icon-512.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
